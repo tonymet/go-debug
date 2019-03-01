@@ -28,7 +28,8 @@ func TestLastPkgName(t *testing.T) {
 
 func TestActive(t *testing.T) {
 	os.Setenv("DEBUG", "go-debug")
-	assert.Equal(t, true, active(1))
+	_, ok := active(1)
+	assert.Equal(t, true, ok)
 }
 
 func TestDebugf(t *testing.T) {
@@ -43,4 +44,26 @@ func TestDebugf(t *testing.T) {
 		assert.Equal(t, "hey tony", string(out))
 	})
 	os.Stdout = old
+}
+
+// from fib_test.go
+func BenchmarkDebug(b *testing.B) {
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		Debug("hi bench")
+	}
+}
+
+func BenchmarkDebugf(b *testing.B) {
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		Debugf("hi %s", "bob")
+	}
+}
+
+func BenchmarkActive(b *testing.B) {
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		active(1)
+	}
 }
