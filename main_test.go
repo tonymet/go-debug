@@ -1,33 +1,46 @@
-package debug_test
+package debug
 
 import (
-	"bytes"
-	"io"
+	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tonymet/go-debug"
 )
 
-func TestAverage(t *testing.T) {
+func TestDebug(t *testing.T) {
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-	t.Run("First test", func(t *testing.T) {
-		debug.Debug("hi")
-		outC := make(chan string)
-		// copy the output in a separate goroutine so printing can't block indefinitely
-		go func() {
-			var buf bytes.Buffer
-			io.Copy(&buf, r)
-			outC <- buf.String()
-		}()
-		// back to normal state
+	os.Setenv("DEBUG", "go-debug")
+	t.Run("Test debug.Debug ", func(t *testing.T) {
+		Debug("hi")
 		w.Close()
-		os.Stdout = old // restoring the real stdout
-		out := <-outC
-
-		assert.Equal(t, out, "hi")
+		out, _ := ioutil.ReadAll(r)
+		assert.Equal(t, "hi", string(out))
 	})
+	os.Stdout = old
+}
+
+func TestLastPkgName(t *testing.T) {
+	assert.Equal(t, lastPkgName("_/Users/tonym/sotion/go-debug.TestReflect"), "go-debug")
+}
+
+func TestActive(t *testing.T) {
+	os.Setenv("DEBUG", "go-debug")
+	assert.Equal(t, true, active(1))
+}
+
+func TestDebugf(t *testing.T) {
+	old := os.Stdout // keep backup of the real stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+	os.Setenv("DEBUG", "go-debug")
+	t.Run("Test debug.Debugf ", func(t *testing.T) {
+		Debugf("hey %s", "tony")
+		w.Close()
+		out, _ := ioutil.ReadAll(r)
+		assert.Equal(t, "hey tony", string(out))
+	})
+	os.Stdout = old
 }
