@@ -1,8 +1,11 @@
 package debug
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +20,7 @@ func TestDebug(t *testing.T) {
 		Debug("hi")
 		w.Close()
 		out, _ := ioutil.ReadAll(r)
-		assert.Equal(t, "hi", string(out))
+		assert.Equal(t, "go-debug hi", string(out))
 	})
 	os.Stdout = old
 }
@@ -32,6 +35,18 @@ func TestActive(t *testing.T) {
 	assert.Equal(t, true, ok)
 }
 
+func TestReflect(t *testing.T) {
+
+	pc, myFunction, _, _ := runtime.Caller(1)
+	frames := runtime.CallersFrames([]uintptr{pc})
+	frame, _ := frames.Next()
+	myType := reflect.TypeOf(frame.Func)
+	fmt.Printf("typeof myfunc: %v", myType)
+	fmt.Printf("typeof myfunc: %v", myType.PkgPath())
+	fmt.Printf("myFunction: %v", myFunction)
+
+}
+
 func TestDebugf(t *testing.T) {
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
@@ -41,7 +56,7 @@ func TestDebugf(t *testing.T) {
 		Debugf("hey %s", "tony")
 		w.Close()
 		out, _ := ioutil.ReadAll(r)
-		assert.Equal(t, "hey tony", string(out))
+		assert.Equal(t, "go-debug hey tony", string(out))
 	})
 	os.Stdout = old
 }

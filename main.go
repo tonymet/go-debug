@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"runtime"
 
 	"github.com/fatih/color"
-	"github.com/go-stack/stack"
 	isatty "github.com/mattn/go-isatty"
 )
 
@@ -20,20 +20,19 @@ var (
 func Debug(message interface{}) {
 	if lastPkgName, ok := active(2); ok {
 		if isTty {
-			color.Red("%s | %s", lastPkgName, message)
+			color.Red("%s %s", lastPkgName, message)
 		} else {
-			fmt.Printf("%s | %s\n", lastPkgName, message)
+			fmt.Printf("%s %s", lastPkgName, message)
 		}
 	}
 }
 
 func Debugf(format string, args ...interface{}) {
 	if lastPkgName, ok := active(2); ok {
-		//if isTty {
-		if isatty.IsTerminal(os.Stdin.Fd()) {
-			color.Red(lastPkgName+" | "+format, args...)
+		if isTty {
+			color.Red(lastPkgName+" "+format, args...)
 		} else {
-			fmt.Printf(lastPkgName+" | "+format, args...)
+			fmt.Printf(lastPkgName+" "+format, args...)
 		}
 	}
 }
@@ -41,8 +40,16 @@ func Debugf(format string, args ...interface{}) {
 // see if active based on calling method
 func active(level int) (string, bool) {
 	// if calling methodg
-	c := stack.Caller(level)
-	theLastPkgName := lastPkgName(c.Frame().Function)
+	//c := stack.Caller(level)
+	pc, _, _, ok := runtime.Caller(level)
+	if !ok {
+		return "", false
+	}
+	frames := runtime.CallersFrames([]uintptr{pc})
+	frame, _ := frames.Next()
+	//log.Printf("function: %s", function)
+	theLastPkgName := lastPkgName(frame.Function)
+	//log.Printf("lastPkgName: %s", function)
 	return theLastPkgName, os.Getenv("DEBUG") == theLastPkgName
 }
 
