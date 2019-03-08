@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	extractLastPkgName = regexp.MustCompile(`(?msi)(?:.*\/)?([a-z_-]+)\..*$`)
-	isTty              = isatty.IsTerminal(os.Stdin.Fd())
+	extractLastPkgName   = regexp.MustCompile(`(?i)([a-z_-]+)\..*$`)
+	debugPatternMatch, _ = regexp.Compile("^" + os.Getenv("DEBUG") + "$")
+	isTty                = isatty.IsTerminal(os.Stdin.Fd())
 )
 
 func Debug(message interface{}) {
@@ -39,18 +40,15 @@ func Debugf(format string, args ...interface{}) {
 
 // see if active based on calling method
 func active(level int) (string, bool) {
-	// if calling methodg
-	//c := stack.Caller(level)
+	if debugPatternMatch == nil {
+		return "", false
+	}
 	pc, _, _, ok := runtime.Caller(level)
 	if !ok {
 		return "", false
 	}
-	frames := runtime.CallersFrames([]uintptr{pc})
-	frame, _ := frames.Next()
-	//log.Printf("function: %s", function)
-	theLastPkgName := lastPkgName(frame.Function)
-	//log.Printf("lastPkgName: %s", function)
-	return theLastPkgName, os.Getenv("DEBUG") == theLastPkgName
+	theLastPkgName := lastPkgName(runtime.FuncForPC(pc).Name())
+	return theLastPkgName, debugPatternMatch.MatchString(theLastPkgName)
 }
 
 func lastPkgName(fullPkgName string) string {
