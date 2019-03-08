@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"runtime"
+	"strings"
 
 	"github.com/fatih/color"
 	isatty "github.com/mattn/go-isatty"
@@ -57,14 +58,15 @@ func active(level int) (string, bool) {
 	if !ok {
 		return "", false
 	}
-	theLastPkgName := lastPkgName(runtime.FuncForPC(pc).Name())
+	funcName := runtime.FuncForPC(pc).Name()
+	theLastPkgName := lastPkgName(funcName)
 	return theLastPkgName, debugPatternMatch.MatchString(theLastPkgName)
 }
 
 func lastPkgName(fullPkgName string) string {
-	matches := extractLastPkgName.FindStringSubmatch(fullPkgName)
-	if len(matches) == 3 {
-		return matches[1]
+	lastIndex := strings.LastIndex(fullPkgName, "/")
+	if lastIndex == -1 {
+		return fullPkgName
 	}
-	return ""
+	return fullPkgName[lastIndex+1:]
 }

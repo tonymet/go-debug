@@ -1,12 +1,10 @@
-package main
+package dostuff
 
 import (
 	. "github.com/tonymet/go-debug"
-	. "github.com/tonymet/go-debug/test/lib"
 )
 
-func main() {
+func DoStuff() {
 	Debug("heythere")
 	Debugf("dude! your name is %s", "bob")
-	DoStuff()
 }

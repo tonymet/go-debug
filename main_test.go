@@ -1,5 +1,3 @@
-// +build debug
-
 package debug
 
 import (
@@ -17,7 +15,6 @@ func TestDebug(t *testing.T) {
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-	os.Setenv("DEBUG", "go-debug")
 	t.Run("Test debug.Debug ", func(t *testing.T) {
 		Debug("hi")
 		w.Close()
@@ -32,13 +29,11 @@ func TestLastPkgName(t *testing.T) {
 }
 
 func TestActive(t *testing.T) {
-	os.Setenv("DEBUG", "go-debug")
 	_, ok := active(1)
 	assert.Equal(t, true, ok)
 }
 
 func TestReflect(t *testing.T) {
-
 	pc, myFunction, _, _ := runtime.Caller(1)
 	frames := runtime.CallersFrames([]uintptr{pc})
 	frame, _ := frames.Next()
@@ -46,14 +41,12 @@ func TestReflect(t *testing.T) {
 	fmt.Printf("typeof myfunc: %v", myType)
 	fmt.Printf("typeof myfunc: %v", myType.PkgPath())
 	fmt.Printf("myFunction: %v", myFunction)
-
 }
 
 func TestDebugf(t *testing.T) {
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-	os.Setenv("DEBUG", "go-debug")
 	t.Run("Test debug.Debugf ", func(t *testing.T) {
 		Debugf("hey %s", "tony")
 		w.Close()
