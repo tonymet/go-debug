@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	extractLastPkgName   = regexp.MustCompile(`(?i)([a-z_-]+)\..*$`)
+	extractLastPkgName   = regexp.MustCompile(`(?i)([a-z0-9_-]+)\.([a-z0-9_-]+)\.func1$`)
 	debugPatternMatch, _ = regexp.Compile("^" + os.Getenv("DEBUG") + "$")
 	isTty                = isatty.IsTerminal(os.Stdin.Fd())
 	colorMap             = []color.Attribute{color.FgRed, color.FgYellow, color.FgGreen, color.FgHiMagenta}
@@ -63,7 +63,7 @@ func active(level int) (string, bool) {
 
 func lastPkgName(fullPkgName string) string {
 	matches := extractLastPkgName.FindStringSubmatch(fullPkgName)
-	if len(matches) == 2 {
+	if len(matches) == 3 {
 		return matches[1]
 	}
 	return ""

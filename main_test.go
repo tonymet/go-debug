@@ -28,7 +28,7 @@ func TestDebug(t *testing.T) {
 }
 
 func TestLastPkgName(t *testing.T) {
-	assert.Equal(t, lastPkgName("_/Users/tonym/sotion/go-debug.TestReflect"), "go-debug")
+	assert.Equal(t, lastPkgName("_/Users/tonym/sotion/go-debug.TestReflect.func1"), "go-debug")
 }
 
 func TestActive(t *testing.T) {
