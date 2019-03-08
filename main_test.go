@@ -1,3 +1,5 @@
+// +build debug
+
 package debug
 
 import (
@@ -75,10 +77,47 @@ func BenchmarkDebugf(b *testing.B) {
 		Debugf("hi %s", "bob")
 	}
 }
+func BenchmarkHashToBucket(b *testing.B) {
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		hashToBucket("bobdood", 4)
+	}
+}
 
 func BenchmarkActive(b *testing.B) {
 	// run the Fib function b.N times
 	for n := 0; n < b.N; n++ {
 		active(1)
+	}
+}
+
+func Test_hashToBucket(t *testing.T) {
+	type args struct {
+		keyName     string
+		bucketCount uint32
+	}
+	tests := []struct {
+		name string
+		args args
+		want uint32
+	}{
+		{
+			"test1",
+			args{keyName: "bob", bucketCount: 4},
+			2,
+		},
+		{
+			"test2",
+			args{keyName: "bob.goog", bucketCount: 4},
+			0,
+		},
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := hashToBucket(tt.args.keyName, tt.args.bucketCount); got != tt.want {
+				t.Errorf("hashToBucket() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
